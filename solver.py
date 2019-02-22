@@ -1,7 +1,7 @@
 import numpy as np 
 #0 0 6 0 3 0 0 0 0 0 0 5 0 0 0 0 0 3 0 0 0 0 4 9 2 0 7 7 0 0 0 0 0 0 3 0 0 9 0 2 0 0 7 0 0 0 0 0 0 0 3 0 9 0 0 0 4 0 0 0 0 0 0 0 6 0 1 0 0 4 0 0 0 0 0 0 0 0 5 6 1
 #0 0 0 0 0 5 4 0 9 4 5 1 0 0 2 3 0 0 9 8 2 0 0 0 5 6 1 6 0 7 0 0 0 9 8 0 0 0 3 4 6 0 0 0 0 5 0 0 2 8 7 0 1 0 0 4 0 0 7 0 0 9 6 3 0 0 0 0 0 7 0 0 0 0 5 9 4 6 8 0 2
-
+#0 0 0 0 0 2 0 0 0 0 0 9 1 0 0 0 0 7 0 6 1 0 0 4 0 0 0 0 0 2 0 9 0 0 0 1 7 0 5 0 0 0 0 0 0 0 0 0 0 0 3 8 4 0 0 8 0 0 3 0 0 2 0 0 0 0 0 0 0 0 0 8 0 0 0 0 0 7 4 9 0
 
 #status: tested
 def make_sudoku():#going to be here shortly, just used to create a sudoku game that i can test for functionality
@@ -25,20 +25,6 @@ def is_possible(sudoku,n,x,y):#checks if a given number is already on the square
     
     return True
 
-def test_possibilities(sudoku,n,x,y):
-    for i in range(9):
-        if sudoku[x][i]==1 or sudoku[i][y]==1:#checks line and column
-            return False    
-    aux_x = x - (x%3)
-    aux_y = y - (y%3)
-
-    for i in range(aux_x,(aux_x+3)):#checks square
-        for j in range(aux_y,(aux_y+3)):
-            if sudoku[i][j]==1:
-                return False
-        
-    return True
-
 #status: tested
 def make_helper(sudoku):#returns a 9x9x9 matrix cube with all the possibilities for each single square in the current sudoku
     helper = np.zeros(81*9).reshape(9,9,9).astype(np.int)#creates a 9x9x9 matrix cube with zeros
@@ -51,20 +37,22 @@ def make_helper(sudoku):#returns a 9x9x9 matrix cube with all the possibilities 
     
     return helper
 
-def delete(helper,number,x,y):
-    for i in range(9):
+#status: tested
+def delete(helper,number,x,y):#deletes values that are no longer possible
+    for i in range(9):#line and column values
         helper[number][i][y]=0
         helper[number][x][i]=0
 
 
     aux_x = x - (x%3)
     aux_y = y - (y%3)
-    for i in range(aux_x,(aux_x+3)):
+    for i in range(aux_x,(aux_x+3)):#square values
         for j in range(aux_y,(aux_y+3)):
             helper[number][i][j]=0
     return helper
 
-def  unable_to_solve(sudoku, helper):
+#status: tested
+def  unable_to_solve(sudoku, helper):#checks if the current sudoku is solvable
     for i in range(9):
         for j in range(9):
             sum = 0
@@ -75,7 +63,9 @@ def  unable_to_solve(sudoku, helper):
                     return True
     return False
 
-def only_possibility(sudoku,helper):
+#status: tested
+def only_possibility(sudoku,helper):#helps make the process faster
+    #when you add values, some other values may be determined because of that, this function checks them
     value = False
     for i in range(9):
         for j in range(9):
@@ -94,7 +84,7 @@ def only_possibility(sudoku,helper):
                 for k in range(9):
                     if helper[k][i][j]==1:
                         helper[k][i][j]=0
-                        if test_possibilities(helper[k],k,i,j):
+                        if is_possible(helper[k],1,i,j):
                             sudoku[i][j]=k+1
                             helper = delete(helper,k,i,j) 
                         else:
@@ -104,15 +94,16 @@ def only_possibility(sudoku,helper):
         return only_possibility(sudoku,helper)
     return sudoku,helper
 
-
-def solved(sudoku):
+#status: tested
+def solved(sudoku):#checks if the sudoku is already solved
     for i in range(9):
         for j in range(9):
             if sudoku[i][j]==0:
                 return False
     return True
 
-def solve(sudoku, helper,n):
+#status: tested
+def solve(sudoku, helper,n):#solves the sudoku
     result = 0
     aux_s = 0
     aux_h = 0
