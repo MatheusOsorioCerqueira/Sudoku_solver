@@ -120,20 +120,23 @@ def solve(sudoku, helper,n):
         return sudoku
     if unable_to_solve(sudoku,helper):
         return 0
-    for i in range(9):
-        for j in range(9):
-            if sudoku[i][j] == 0:
-                for k in range(9):
-                    if helper[k][i][j]==1:
-                        aux_s = sudoku.copy()
-                        aux_h = helper.copy()
-                        aux_s[i][j] = k+1
-                        aux_h = delete(aux_h,k,i,j)
-                        aux_s,aux_h = only_possibility(aux_s,aux_h)
-                        print(n)
-                        result = solve(aux_s,aux_h,n+1)
-                        if type(result)!= int:
-                            return result
+    j = n%9
+    i = (n-j)//9
+    number = sudoku[i][j]
+    if number == 0:
+        for k in range(9):
+            if helper[k][i][j]==1:
+                aux_s = sudoku.copy().astype(np.int)
+                aux_h = helper.copy().astype(np.int)
+                aux_s[i][j]=k+1
+                aux_h = delete(aux_h,k,i,j)
+                aux_s,aux_h = only_possibility(aux_s,aux_h)
+                result = solve(aux_s,aux_h,n+1)
+                if type(result) != int:
+                    return result
+    else:
+        return solve(sudoku, helper,n+1)
+
     return 0
 
 
@@ -142,4 +145,3 @@ sudoku = make_sudoku()
 helper = make_helper(sudoku)
 print(solve(sudoku,helper,0))
         
-    
